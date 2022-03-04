@@ -1,41 +1,28 @@
 class Station
   attr_reader :name
+  attr_reader :trains_list
 
   def initialize(name)
     @name = name
-    @train_list = { cargo: [], passenger: [] }
+    @trains_list = []
   end
 
   def add_train(train)
-    @train_list[:cargo] << train if train.type == 'cargo'
-    @train_list[:passenger] << train if train.type == 'passenger'
+    @train_list.push(train)
   end
 
-  def send_train(train)
-    @train_list.each do |trains| 
-      trains.dig(:cargo).delete(train) if trains.dig(:cargo).include? train
-      trains.dig(:passenger).delete(train) if trains.dig(:passenger).include? train
-    end
-  end
-
-  def show_trains_on_station
-    puts "Поезда на станции: "
-    @train_list.each do |trains|
-      trains.dig(:cargo).each { |train| puts "#{train.number}, #{train.wagons}" }
-      trains.dig(:passenger).each { |train| puts train }
-    end
+  def send_train(train) 
+    @trains_list.delete(train) if @trains_list.include? train
   end
 
   def show_trains_on_station_by_type(type)
-    puts "#{type} поезда: "
-    @train_list.dig(type.to_sym).each { |trains| puts "Номер поезда: #{train.number}, \
-                                                 количество вагонов: #{train.wagons}" }
-    end
+    @trains_list.select { |train| train.type == type }
   end
 
 end
 
 class Route
+  attr_reader :stations
 
   def intialize(first_station, last_station)
     @stations = [first_station, last_station]
@@ -56,10 +43,7 @@ class Route
 end
 
 class Train
-  attr_reader :number
-  attr_reader :type
-  attr_reader :wagons
-  attr_reader :route
+  attr_reader :number, :type, :wagons, :route
   attr_accessor :speed
 
   def initialize(number, type, wagons)
@@ -87,18 +71,23 @@ class Train
 
   def train_route(route)
     @route = route
-    @staion_with_train = route.fisrt
+    @staion_with_train = route.stations.fisrt
   end
 
-  def moving_train(orientation)
-    @staion_with_train = @route[@route.index(@station_with_train) - 1] if orientation == "Назад"
-    @staion_with_train = @route[@route.index(@station_with_train) + 1] if orientation == "Вперед"
+  def previous_station
+    @route.stations[@route.stations.index(@station_with_train) - 1]
   end
 
-  def adjacent_stations
-    "Предыдущая станция: #{@route[@route.index(@station_with_train) - 1].name}, \
-     текущая станция: #{@station_with_train.name} \
-     следующая станция: #{@route[@route.index(@station_with_train) + 1].name}" 
+  def next_station
+    @route.stations[@route.stations.index(@station_with_train) + 1]
+  end
+
+  def moving_back
+    @staion_with_train = previous_station
+  end
+
+  def moving_forward
+    @staion_with_train = next_station
   end
 
 end
