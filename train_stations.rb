@@ -75,13 +75,11 @@ class Train
   end
 
   def previous_station
-    @route.stations[@route.stations.index(@current_station).pred] unless 
-                    @route.stations[@route.stations.index(@current_station)].fisrt 
+    @route.stations[current_stations_index.pred] unless @current_station.fisrt 
   end
 
   def next_station
-    @route.stations[@route.stations.index(@current_station).next] unless 
-                    @route.stations[@route.stations.index(@current_station)].last
+    @route.stations[current_stations_index.next] unless @current_station.last
   end
 
   def moving_back
@@ -90,6 +88,12 @@ class Train
 
   def moving_forward
     @current_station = next_station if next_station
+  end
+
+  private
+
+  def current_stations_index
+    @route.stations.index(@current_station)
   end
 
 end
